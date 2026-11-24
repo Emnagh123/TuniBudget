@@ -48,7 +48,7 @@ export default function TransferPage({ version, onChange, notify }) {
             <h1 className="page-title">Transfer</h1>
           </div>
         </div>
-        <div className="panel">
+        <div className="panel panel--fit">
           <p className="state__title">You need two open accounts to make a transfer.</p>
           <p className="muted" style={{ marginTop: 8 }}>
             Open another account in the Accounts page first.
@@ -102,7 +102,6 @@ export default function TransferPage({ version, onChange, notify }) {
       <div className="page-header">
         <div>
           <h1 className="page-title">Transfer</h1>
-          <p className="page-subtitle">Move money between your accounts. A transfer goes through completely, or not at all.</p>
         </div>
       </div>
 
@@ -160,7 +159,6 @@ export default function TransferPage({ version, onChange, notify }) {
             <input type="checkbox" checked={simulateFailure} onChange={(e) => setSimulateFailure(e.target.checked)} />
             <span>
               Simulate a crash before the credit
-              <span className="muted small check__hint">Demo only. The debit is rolled back and no balance changes.</span>
             </span>
           </label>
 
@@ -183,7 +181,6 @@ export default function TransferPage({ version, onChange, notify }) {
                 <h2 className="panel__title" id="journal-title">
                   What will happen
                 </h2>
-                <p className="panel__subtitle">The five steps of this transfer, before you send it.</p>
               </div>
               <TransferSteps steps={preview} />
             </>
@@ -195,7 +192,6 @@ export default function TransferPage({ version, onChange, notify }) {
                 <h2 className="panel__title" id="journal-title">
                   Transfer completed
                 </h2>
-                <p className="panel__subtitle">Both entries were saved together.</p>
               </div>
               <p className="notice notice--ok" role="status">
                 <Icon name="check" />
@@ -223,7 +219,6 @@ export default function TransferPage({ version, onChange, notify }) {
                 <h2 className="panel__title" id="journal-title">
                   Transfer rolled back
                 </h2>
-                <p className="panel__subtitle">Nothing was changed.</p>
               </div>
               <p className="notice notice--error" role="alert">
                 <Icon name="warning" />

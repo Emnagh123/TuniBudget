@@ -5,10 +5,10 @@ import Icon from "../components/Icon.jsx";
 import ThemeToggle from "../components/ThemeToggle.jsx";
 
 const TITLES = {
-  login: ["Welcome back", "Log in to see your accounts."],
-  register: ["Open your first account", "A checking account in dinar is created for you."],
-  forgot: ["Forgot your password?", "Enter your email and we will send you a link to choose a new one."],
-  reset: ["Choose a new password", "At least 8 characters, with a letter and a digit."],
+  login: "Welcome back",
+  register: "Open your first account",
+  forgot: "Forgot your password?",
+  reset: "Choose a new password",
 };
 
 const SUBMIT_LABELS = { login: "Log in", register: "Create my account", forgot: "Send the reset link", reset: "Save my new password" };
@@ -104,8 +104,7 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
           )}
 
           <div>
-            <h2 className="auth__title">{TITLES[mode][0]}</h2>
-            <p className="muted auth__lead">{TITLES[mode][1]}</p>
+            <h2 className="auth__title">{TITLES[mode]}</h2>
           </div>
 
           {notice && (

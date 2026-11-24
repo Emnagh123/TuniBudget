@@ -245,13 +245,13 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  padding: 28px 4px;
+  padding: 12px 2px;
   color: var(--muted);
 }
 .state--center {
   align-items: center;
   text-align: center;
-  padding: 48px 16px;
+  padding: 20px 12px;
 }
 .state__title {
   color: var(--ink);
@@ -313,5 +313,267 @@
   .bars__row {
     grid-template-columns: 90px minmax(0, 1fr) 80px;
     gap: 10px;
+  }
+}
+
+/* ---------- hover animations ----------
+   Every button reacts when the cursor is on it: it lifts a little, glows, and springs back
+   when clicked. Turned off for people who ask their system for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .btn,
+  .tab,
+  .segmented__option,
+  .theme-toggle,
+  .choice,
+  .auth__tabs button,
+  .link-button,
+  .toast__close,
+  .brand {
+    transition:
+      transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  /* Regular buttons: lift + soft shadow. */
+  .btn:hover:not(:disabled),
+  .theme-toggle:hover,
+  .choice:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Yellow buttons: lift + yellow glow. */
+  .btn--primary:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 12px 28px -10px var(--cta);
+  }
+
+  /* Pressed: springs down. */
+  .btn:active:not(:disabled),
+  .theme-toggle:active,
+  .choice:active:not(:disabled),
+  .tab:active,
+  .segmented__option:active,
+  .auth__tabs button:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: none;
+  }
+
+  /* Menu tabs, pill switches: small pop. */
+  .tab:hover,
+  .segmented__option:hover,
+  .auth__tabs button:hover {
+    transform: translateY(-1px) scale(1.04);
+  }
+  .tab:not([aria-current="page"]):hover,
+  .auth__tabs button:not([aria-pressed="true"]):hover {
+    background: var(--chip);
+  }
+
+  /* Text links: slide right a little. */
+  .link-button:hover {
+    transform: translateX(3px);
+  }
+
+  /* Logo: star turns. */
+  .brand svg {
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .brand:hover svg {
+    transform: rotate(45deg) scale(1.1);
+  }
+
+  /* Toast close: turns. */
+  .toast__close:hover {
+    transform: rotate(90deg);
+  }
+
+  /* Theme toggle icon: sun/moon spins. */
+  .theme-toggle svg {
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .theme-toggle:hover svg {
+    transform: rotate(-25deg) scale(1.15);
+  }
+
+  /* Dropdown chevron button: bounces. */
+  select.input:hover:not(:open)::picker-icon {
+    transform: translateY(2px);
+  }
+}
+
+/* ---------- date picker (app-styled calendar) ---------- */
+.datepicker {
+  position: relative;
+}
+.datepicker__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-right: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+.datepicker__trigger.is-invalid {
+  border-color: var(--red);
+}
+.datepicker__trigger[aria-expanded="true"] {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px var(--tint);
+}
+.datepicker__placeholder {
+  color: var(--muted);
+}
+.datepicker__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cta);
+  color: var(--cta-ink);
+}
+.datepicker__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: 296px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+}
+.datepicker__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.datepicker__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.datepicker__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--card-raised);
+  color: var(--ink);
+  cursor: pointer;
+}
+.datepicker__nav:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.datepicker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.datepicker__weekday {
+  padding: 4px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.datepicker__day {
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.datepicker__day:hover {
+  background: var(--tint);
+  color: var(--blue);
+}
+.datepicker__day.is-outside {
+  color: var(--muted);
+  opacity: 0.5;
+}
+.datepicker__day.is-today {
+  box-shadow: inset 0 0 0 1.5px var(--blue);
+}
+.datepicker__day.is-selected {
+  background: var(--cta);
+  color: var(--cta-ink);
+  font-weight: 700;
+  opacity: 1;
+}
+.datepicker__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .datepicker__panel {
+    animation: datepicker-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: top left;
+  }
+  .datepicker__grid {
+    animation: datepicker-fade 0.2s ease;
+  }
+  .datepicker__day,
+  .datepicker__nav,
+  .datepicker__icon {
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .datepicker__day:hover {
+    transform: scale(1.12);
+  }
+  .datepicker__day:active {
+    transform: scale(0.92);
+  }
+  .datepicker__day.is-selected {
+    animation: tick-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .datepicker__nav:hover {
+    transform: scale(1.1);
+  }
+  .datepicker__trigger:hover .datepicker__icon {
+    transform: scale(1.12) rotate(-8deg);
+  }
+}
+
+@keyframes datepicker-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes datepicker-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

@@ -8,7 +8,7 @@ import {
   getSpendingByCategory,
   getTransactions,
 } from "../services/index.js";
-import { currentMonthKey, formatDay, formatLongDate, monthLabel, monthName } from "../utils/dates.js";
+import { currentMonthKey, formatDay, monthLabel, monthName } from "../utils/dates.js";
 import { formatMillimes, formatTnd } from "../utils/money.js";
 import { StarPattern } from "../components/StarMark.jsx";
 import { Amount, BigMoney } from "../components/Money.jsx";
@@ -62,13 +62,6 @@ export default function DashboardPage({ user, version, goTo }) {
   // A transfer is two ledger entries; the dashboard lists it once (the debit side).
   const latest = recent.items.filter((t) => !(t.transferId && t.type === "credit")).slice(0, 6);
 
-  const exceeded = budgets.items.filter((b) => b.status === "exceeded").length;
-  const near = budgets.items.filter((b) => b.status === "near").length;
-  let budgetSummary = "All budgets are on track";
-  if (budgets.items.length === 0) budgetSummary = "No budget set for " + monthName(month);
-  else if (exceeded || near) {
-    budgetSummary = [exceeded && exceeded + " exceeded", near && near + " near the limit"].filter(Boolean).join(", ");
-  }
 
   const spentPercent = summary.spentShare === null ? null : Math.round(summary.spentShare * 100);
 
@@ -77,7 +70,6 @@ export default function DashboardPage({ user, version, goTo }) {
       <div className="page-header">
         <div>
           <h1 className="page-title">Hello, {user.fullName.split(" ")[0]}</h1>
-          <p className="page-subtitle">{formatLongDate(new Date())}</p>
         </div>
         <div className="page-actions">
           <button type="button" className="btn" onClick={() => goTo("history")}>
@@ -94,7 +86,7 @@ export default function DashboardPage({ user, version, goTo }) {
           <StarPattern id="hero-pattern" />
           <div className="hero__top">
             <p className="hero__label">Total balance across {activeAccounts.length} {activeAccounts.length === 1 ? "account" : "accounts"}</p>
-            <BigMoney millimes={total} size={68} />
+            <BigMoney millimes={total} size={64} />
             <p className="hero__delta">
               {formatTnd(summary.net, { signed: true })} since {monthName(month)} 1
             </p>
@@ -127,7 +119,6 @@ export default function DashboardPage({ user, version, goTo }) {
           <h2 className="panel__title" id="summary-title">
             {monthLabel(month)} at a glance
           </h2>
-          <p className="panel__subtitle">Transfers between your accounts are not counted.</p>
           <dl className="summary__list">
             <div className="summary__row">
               <dt>Income</dt>
@@ -157,12 +148,11 @@ export default function DashboardPage({ user, version, goTo }) {
         </section>
       </div>
 
-      <div className="columns columns--gap-top">
+      <div className="columns columns--stretch columns--gap-top">
         <section className="panel grow" aria-labelledby="spending-title">
           <h2 className="panel__title" id="spending-title">
             Where the money goes
           </h2>
-          <p className="panel__subtitle">{monthLabel(month)} expenses by category, in TND</p>
           <div style={{ marginTop: 22 }}>
             {spending.length === 0 ? <EmptyState title="No spending yet this month">Expenses you add will show up here.</EmptyState> : <CategoryBars items={spending} />}
           </div>
@@ -177,7 +167,6 @@ export default function DashboardPage({ user, version, goTo }) {
               See all budgets
             </button>
           </div>
-          <p className="panel__subtitle">{budgetSummary}</p>
           {budgets.items.length === 0 ? (
             <EmptyState title="No budgets yet">Set a monthly limit for a category to get alerts.</EmptyState>
           ) : (

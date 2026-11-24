@@ -27,6 +27,12 @@ const SHAPES = {
       <path d="M8 7.2 V11 M8 4.8 V5" />
     </>
   ),
+  calendar: (
+    <>
+      <rect x="2.5" y="3.5" width="11" height="10" rx="2" />
+      <path d="M2.5 7 H13.5 M5.5 2 V5 M10.5 2 V5" />
+    </>
+  ),
   chevronLeft: <path d="M10 3 L5 8 L10 13" />,
   chevronRight: <path d="M6 3 L11 8 L6 13" />,
 };

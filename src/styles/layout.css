@@ -10,9 +10,8 @@
   backdrop-filter: saturate(160%) blur(16px);
 }
 .navbar__inner {
-  max-width: 1240px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 40px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -127,23 +126,23 @@
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--gold);
 }
 
+/* Full screen width: the content uses the whole window, with the same margin on both sides. */
 .main {
-  max-width: 1240px;
   margin: 0 auto;
-  padding: 40px 32px 80px;
+  padding: 24px 40px 32px;
 }
 
 .page-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 .page-title {
   font-family: var(--font-display);
-  font-size: 40px;
+  font-size: 34px;
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.035em;
@@ -160,18 +159,19 @@
   gap: 12px;
 }
 
-/* Rows of panels that wrap on small screens. */
+/* Rows of panels: every box in a row gets the same width, and they wrap under each
+   other when the window is too narrow (each box is at least 360 px wide). */
 .columns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 28px;
+  align-items: stretch;
 }
 .columns--stretch {
   align-items: stretch;
 }
 .columns--gap-top {
-  margin-top: 20px;
+  margin-top: 28px;
 }
 
 .toast {
@@ -252,4 +252,24 @@
   .who {
     gap: 10px;
   }
+}
+
+/* ---------- pages fill the whole window ----------
+   No empty band at the bottom of a page: the page is at least as tall as the window, the
+   last block grows to reach the bottom, boxes side by side share the same height, and in a
+   column of boxes the last one stretches down to line up with its neighbour. */
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 73px); /* window height minus the top bar */
+}
+.main > :last-child {
+  flex-grow: 1;
+}
+.columns > .stack > :last-child {
+  flex-grow: 1;
+}
+/* A box that keeps its natural height even when it is the last one on the page. */
+.main > .panel--fit:last-child {
+  flex-grow: 0;
 }

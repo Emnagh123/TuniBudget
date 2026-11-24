@@ -86,7 +86,6 @@ export default function AdminPage({ user, version, onChange, notify }) {
       <div className="page-header">
         <div>
           <h1 className="page-title">Admin</h1>
-          <p className="page-subtitle">Security activity and user accounts. Every action here is written to the security log.</p>
         </div>
       </div>
 

@@ -91,9 +91,6 @@ export default function AccountsPage({ version, onChange, notify, goTo }) {
       <div className="page-header">
         <div>
           <h1 className="page-title">Accounts</h1>
-          <p className="page-subtitle">
-            {active.length} {active.length === 1 ? "account" : "accounts"} in Tunisian dinar, {formatTnd(total)} in total.
-          </p>
         </div>
       </div>
 
@@ -144,11 +141,16 @@ export default function AccountsPage({ version, onChange, notify, goTo }) {
                     <button type="button" className="btn btn--small" onClick={() => { setEditing({ id: account._id, name: account.name }); setEditError(""); }}>
                       Rename
                     </button>
-                    <button type="button" className="btn btn--small" disabled={account.balance !== 0} onClick={() => handleClose(account)}>
+                    <button
+                      type="button"
+                      className="btn btn--small"
+                      disabled={account.balance !== 0}
+                      title={account.balance !== 0 ? "Empty this account to close it" : undefined}
+                      onClick={() => handleClose(account)}
+                    >
                       Close account
                     </button>
                   </div>
-                  <p className="muted small">{account.balance === 0 ? "The balance is 0: this account can be closed." : "An account can be closed once its balance is 0.000."}</p>
                 </article>
               );
             })}
@@ -168,7 +170,7 @@ export default function AccountsPage({ version, onChange, notify, goTo }) {
                   <li key={account._id} className="closed-list__row">
                     <div>
                       <p style={{ fontWeight: 600 }}>{account.name}</p>
-                      <p className="muted small">Closed on {formatDayYear(account.closedAt)}. Its history stays in the ledger.</p>
+                      <p className="muted small">Closed on {formatDayYear(account.closedAt)}</p>
                     </div>
                     <p className="num neutral">{formatTnd(account.balance)}</p>
                   </li>
@@ -183,7 +185,6 @@ export default function AccountsPage({ version, onChange, notify, goTo }) {
             <h2 className="panel__title" id="new-title">
               New account
             </h2>
-            <p className="panel__subtitle">All accounts are in Tunisian dinar.</p>
           </div>
           <label className="field">
             Account name

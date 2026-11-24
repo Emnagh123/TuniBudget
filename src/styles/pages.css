@@ -4,7 +4,7 @@
 .stack {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
   min-width: 0;
 }
 .row {
@@ -21,11 +21,10 @@
   min-width: 0;
 }
 .side-form {
-  flex: 0 1 340px;
   min-width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 /* ---------- login / register ---------- */
@@ -122,7 +121,7 @@
 .auth__form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   width: 100%;
   max-width: 400px;
 }
@@ -190,8 +189,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 28px;
-  padding: 32px;
+  gap: 24px;
+  padding: 28px;
   border-radius: 28px;
   background: var(--hero-gradient);
   color: var(--on-hero);
@@ -320,7 +319,7 @@
 .budget-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   margin-top: 20px;
   padding: 0;
   list-style: none;
@@ -341,10 +340,16 @@
 }
 
 /* ---------- accounts ---------- */
+/* Cards share the whole width of their column, with no empty hole: 1 card = full width,
+   2 cards = halves, and a card left alone on the last line stretches to fill it. */
 .cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+.cards-grid > * {
+  flex: 1 1 280px;
+  min-width: 0;
 }
 .account-card,
 .budget-card {
@@ -434,8 +439,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  min-height: 68px;
-  padding: 14px 16px;
+  min-height: 58px;
+  padding: 10px 14px;
   border: 1px solid var(--field-line);
   border-radius: 18px;
   background: var(--card-raised);

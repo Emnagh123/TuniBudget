@@ -139,7 +139,6 @@ export default function BudgetsPage({ version, onChange, notify }) {
       <div className="page-header">
         <div>
           <h1 className="page-title">Budgets</h1>
-          <p className="page-subtitle">Set a monthly limit per category. You are warned from 80 % of the limit.</p>
         </div>
         <div className="page-actions">{monthSwitcher}</div>
       </div>
@@ -255,7 +254,6 @@ export default function BudgetsPage({ version, onChange, notify }) {
               <h2 className="panel__title" id="unbudgeted-title" style={{ fontSize: 18 }}>
                 Spending without a budget
               </h2>
-              <p className="panel__subtitle">These categories have expenses in {monthName(month)} but no limit.</p>
               <ul className="closed-list">
                 {budgets.unbudgeted.map((item) => (
                   <li key={item.categoryId} className="closed-list__row">
@@ -278,7 +276,6 @@ export default function BudgetsPage({ version, onChange, notify }) {
             <h2 className="panel__title" id="budget-form-title">
               Set a budget
             </h2>
-            <p className="panel__subtitle">For {monthLabel(month)}. Choosing a category that already has a budget changes its limit.</p>
           </div>
           <label className="field">
             Category

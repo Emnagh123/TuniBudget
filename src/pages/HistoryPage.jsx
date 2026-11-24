@@ -5,6 +5,7 @@ import { formatMillimes, parseTndToMillimes } from "../utils/money.js";
 import { Amount } from "../components/Money.jsx";
 import Icon from "../components/Icon.jsx";
 import Pagination from "../components/Pagination.jsx";
+import DatePicker from "../components/DatePicker.jsx";
 import { EmptyState, ErrorState, Loading } from "../components/StateMessage.jsx";
 
 const PAGE_SIZE = 10;
@@ -120,7 +121,6 @@ export default function HistoryPage({ version, onChange, notify }) {
       <div className="page-header">
         <div>
           <h1 className="page-title">History</h1>
-          <p className="page-subtitle">Every movement on your accounts. The ledger is append-only: an entry can never be edited or deleted.</p>
         </div>
       </div>
 
@@ -170,14 +170,14 @@ export default function HistoryPage({ version, onChange, notify }) {
                   ))}
                 </select>
               </label>
-              <label className="field">
-                From
-                <input className="input" type="date" value={filters.from} onChange={(e) => setFilter("from", e.target.value)} aria-invalid={rangeInvalid ? "true" : "false"} />
-              </label>
-              <label className="field">
-                To
-                <input className="input" type="date" value={filters.to} onChange={(e) => setFilter("to", e.target.value)} aria-invalid={rangeInvalid ? "true" : "false"} />
-              </label>
+              <div className="field">
+                <span id="filter-from-label">From</span>
+                <DatePicker id="filter-from" labelledBy="filter-from-label" value={filters.from} onChange={(v) => setFilter("from", v)} invalid={rangeInvalid} />
+              </div>
+              <div className="field">
+                <span id="filter-to-label">To</span>
+                <DatePicker id="filter-to" labelledBy="filter-to-label" value={filters.to} onChange={(v) => setFilter("to", v)} invalid={rangeInvalid} />
+              </div>
               <div className="filters__amounts">
                 <label className="field">
                   Minimum amount
@@ -262,7 +262,6 @@ export default function HistoryPage({ version, onChange, notify }) {
             <h2 className="panel__title" id="operation-title">
               Add an operation
             </h2>
-            <p className="panel__subtitle">An expense or an income on one of your accounts.</p>
           </div>
 
           <div className="segmented" role="group" aria-label="Kind of operation">
