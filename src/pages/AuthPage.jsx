@@ -1,18 +1,38 @@
-import { useState } from "react";
-import { login, register } from "../services/index.js";
+import { useEffect, useState } from "react";
+import { login, register, requestPasswordReset, resetPassword } from "../services/index.js";
 import { StarMark, StarPattern } from "../components/StarMark.jsx";
 import Icon from "../components/Icon.jsx";
 import ThemeToggle from "../components/ThemeToggle.jsx";
 
-const DEMO = { email: "amine@tunibudget.tn", password: "demo1234" };
+const TITLES = {
+  login: ["Welcome back", "Log in to see your accounts."],
+  register: ["Open your first account", "A checking account in dinar is created for you."],
+  forgot: ["Forgot your password?", "Enter your email and we will send you a link to choose a new one."],
+  reset: ["Choose a new password", "At least 8 characters, with a letter and a digit."],
+};
+
+const SUBMIT_LABELS = { login: "Log in", register: "Create my account", forgot: "Send the reset link", reset: "Save my new password" };
+
+// The reset link looks like https://app/?reset=<token>. Read once when the page opens.
+function tokenFromUrl() {
+  return new URLSearchParams(window.location.search).get("reset") || "";
+}
 
 export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
-  const [mode, setMode] = useState("login");
-  const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [resetToken] = useState(tokenFromUrl);
+  const [mode, setMode] = useState(resetToken ? "reset" : "login");
+  const [form, setForm] = useState({ fullName: "", email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Remove the token from the address bar, so it is not kept in the history or shared by mistake.
+  useEffect(() => {
+    if (resetToken) window.history.replaceState(null, "", window.location.pathname);
+  }, [resetToken]);
+
   const isLogin = mode === "login";
+  const showTabs = mode === "login" || mode === "register";
 
   function update(field, value) {
     setForm({ ...form, [field]: value });
@@ -22,19 +42,37 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
   function switchMode(next) {
     setMode(next);
     setError("");
+    setNotice("");
   }
 
   async function submit(event) {
     event.preventDefault();
-    setBusy(true);
     setError("");
+    setNotice("");
+    if (mode === "reset" && form.password !== form.confirm) {
+      setError("The two passwords are not the same.");
+      return;
+    }
+    setBusy(true);
     try {
-      const result = isLogin ? await login(form.email, form.password) : await register(form);
-      onAuthenticated(result.user);
+      if (mode === "login" || mode === "register") {
+        const result = isLogin ? await login(form.email, form.password) : await register(form);
+        onAuthenticated(result.user);
+        return;
+      }
+      if (mode === "forgot") {
+        const result = await requestPasswordReset(form.email);
+        setNotice(result.message);
+      } else {
+        const result = await resetPassword(resetToken, form.password);
+        setForm({ ...form, password: "", confirm: "" });
+        setMode("login");
+        setNotice(result.message);
+      }
     } catch (err) {
       setError(err.message);
-      setBusy(false);
     }
+    setBusy(false);
   }
 
   return (
@@ -42,57 +80,73 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
       <section className="auth__hero">
         <StarPattern id="auth-pattern" opacity={0.09} />
         <div className="auth__brand">
-          <StarMark size={34} color="#ffffff" dot="#123b8f" />
+          <StarMark size={34} color="#fbf38c" dot="#0b0d0c" />
           <span className="brand__name">TuniBudget</span>
         </div>
         <div className="auth__pitch">
-          <h1 className="auth__headline">Your money, down to the millime.</h1>
-          <p>Several accounts in dinar, one dashboard.</p>
-          <p>Transfers that go through completely, or not at all.</p>
-          <p>Budgets that warn you before you hit the limit.</p>
+          <h1 className="auth__headline">Every millime in its place.</h1>
+          <p>Accounts, transfers and budgets in dinar.</p>
         </div>
       </section>
 
       <section className="auth__panel">
         <ThemeToggle theme={theme} onToggle={onThemeToggle} />
         <form className="auth__form" onSubmit={submit} noValidate>
-          <div className="auth__tabs" role="group" aria-label="Choose an action">
-            <button type="button" aria-pressed={isLogin} onClick={() => switchMode("login")}>
-              Log in
-            </button>
-            <button type="button" aria-pressed={!isLogin} onClick={() => switchMode("register")}>
-              Create an account
-            </button>
-          </div>
+          {showTabs && (
+            <div className="auth__tabs" role="group" aria-label="Choose an action">
+              <button type="button" aria-pressed={isLogin} onClick={() => switchMode("login")}>
+                Log in
+              </button>
+              <button type="button" aria-pressed={mode === "register"} onClick={() => switchMode("register")}>
+                Create an account
+              </button>
+            </div>
+          )}
 
           <div>
-            <h2 className="auth__title">{isLogin ? "Welcome back" : "Open your first account"}</h2>
-            <p className="muted" style={{ marginTop: 6, fontSize: 16 }}>
-              {isLogin ? "Log in to see your accounts." : "A checking account in dinar is created for you."}
-            </p>
+            <h2 className="auth__title">{TITLES[mode][0]}</h2>
+            <p className="muted auth__lead">{TITLES[mode][1]}</p>
           </div>
 
-          {!isLogin && (
+          {notice && (
+            <p className="notice notice--ok" role="status">
+              <Icon name="check" />
+              {notice}
+            </p>
+          )}
+
+          {mode === "register" && (
             <label className="field">
               Full name
-              <input className="input" autoComplete="name" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} placeholder="First and last name" />
+              <input className="input" autoComplete="name" maxLength={80} value={form.fullName} onChange={(e) => update("fullName", e.target.value)} placeholder="First and last name" />
             </label>
           )}
-          <label className="field">
-            Email address
-            <input className="input" type="email" autoComplete="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@example.tn" />
-          </label>
-          <label className="field">
-            Password
-            <input
-              className="input"
-              type="password"
-              autoComplete={isLogin ? "current-password" : "new-password"}
-              value={form.password}
-              onChange={(e) => update("password", e.target.value)}
-              placeholder="At least 8 characters"
-            />
-          </label>
+          {mode !== "reset" && (
+            <label className="field">
+              Email address
+              <input className="input" type="email" autoComplete="email" maxLength={254} value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@example.tn" />
+            </label>
+          )}
+          {mode !== "forgot" && (
+            <label className="field">
+              {mode === "reset" ? "New password" : "Password"}
+              <input
+                className="input"
+                type="password"
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                maxLength={128}
+                value={form.password}
+                onChange={(e) => update("password", e.target.value)}
+                placeholder="At least 8 characters"
+              />
+            </label>
+          )}
+          {mode === "reset" && (
+            <label className="field">
+              Repeat the new password
+              <input className="input" type="password" autoComplete="new-password" maxLength={128} value={form.confirm} onChange={(e) => update("confirm", e.target.value)} />
+            </label>
+          )}
 
           {error && (
             <p className="form-error" role="alert">
@@ -102,19 +156,20 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
           )}
 
           <button type="submit" className="btn btn--primary btn--block" disabled={busy}>
-            {busy ? "Please wait…" : isLogin ? "Log in" : "Create my account"}
+            {busy ? "Please wait…" : SUBMIT_LABELS[mode]}
           </button>
 
           {isLogin && (
-            <div className="auth__demo">
-              <p className="small muted">
-                Demo account: {DEMO.email} with password {DEMO.password}
-              </p>
-              <button type="button" className="btn btn--small" onClick={() => setForm({ ...form, ...DEMO })}>
-                Fill in the demo account
-              </button>
-            </div>
+            <button type="button" className="link-button auth__switch" onClick={() => switchMode("forgot")}>
+              Forgot your password?
+            </button>
           )}
+          {(mode === "forgot" || mode === "reset") && (
+            <button type="button" className="link-button auth__switch" onClick={() => switchMode("login")}>
+              Back to log in
+            </button>
+          )}
+
         </form>
       </section>
     </div>

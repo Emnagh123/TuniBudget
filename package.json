@@ -1,15 +1,30 @@
 {
   "name": "tunibudget",
   "private": true,
-  "version": "1.0.0",
-  "description": "TuniBudget: personal finance and mini-banking front-end (mock data, no backend).",
+  "version": "2.0.0",
+  "description": "TuniBudget: personal finance and mini-banking in Tunisian dinar (React front-end, Express + MongoDB API).",
   "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
   "scripts": {
-    "project": "vite --open",
+    "project": "node scripts/dev.js",
+    "client": "vite --open",
+    "server": "node server/index.js",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "seed": "node server/scripts/seed.js",
+    "make-admin": "node server/scripts/make-admin.js",
+    "check-env": "node server/scripts/check-env.js",
+    "test": "node --test server/tests/*.test.js",
+    "audit:deps": "npm audit --omit=dev"
   },
   "dependencies": {
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.1.0",
+    "mongodb": "^6.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

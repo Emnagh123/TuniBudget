@@ -19,6 +19,8 @@ function initials(fullName) {
 }
 
 export default function NavBar({ user, page, theme, onThemeToggle, onNavigate, onLogout }) {
+  // The Admin tab is only a shortcut: the server refuses admin calls from anyone else.
+  const tabs = user.role === "admin" ? [...TABS, { id: "admin", label: "Admin" }] : TABS;
   return (
     <header className="navbar">
       <div className="navbar__inner">
@@ -27,7 +29,7 @@ export default function NavBar({ user, page, theme, onThemeToggle, onNavigate, o
           <span className="brand__name">TuniBudget</span>
         </button>
         <nav className="tabs" aria-label="Main navigation">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"

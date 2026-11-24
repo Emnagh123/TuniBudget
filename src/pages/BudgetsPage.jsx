@@ -117,9 +117,17 @@ export default function BudgetsPage({ version, onChange, notify }) {
     }
   }
 
+  // "Set a limit" next to a category without a budget: fill in the form, then bring it on screen
+  // and put the cursor in the limit box, so the user sees what happened (the form can be off-screen).
   function startBudgetFor(categoryId) {
     setForm({ categoryId, limit: "" });
     setFormError("");
+    window.requestAnimationFrame(() => {
+      const input = document.getElementById("budget-limit");
+      if (!input) return;
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+      input.focus({ preventScroll: true });
+    });
   }
 
   const hasBudgets = budgets.items.length > 0;
@@ -286,7 +294,7 @@ export default function BudgetsPage({ version, onChange, notify }) {
           <label className="field">
             Monthly limit
             <span className="input-money">
-              <input className="input num" inputMode="decimal" value={form.limit} onChange={(e) => setForm({ ...form, limit: e.target.value })} placeholder="0.000" />
+              <input id="budget-limit" className="input num" inputMode="decimal" value={form.limit} onChange={(e) => setForm({ ...form, limit: e.target.value })} placeholder="0.000" />
               <span className="input-money__unit">TND</span>
             </span>
           </label>

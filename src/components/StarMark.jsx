@@ -2,7 +2,7 @@
 const STAR =
   "M50 28 L39.09 32.59 L43.56 43.56 L32.59 39.09 L28 50 L23.41 39.09 L12.44 43.56 L16.91 32.59 L6 28 L16.91 23.41 L12.44 12.44 L23.41 16.91 L28 6 L32.59 16.91 L43.56 12.44 L39.09 23.41 Z";
 
-export function StarMark({ size = 30, color = "#1d4fb8", dot = "#ffffff" }) {
+export function StarMark({ size = 30, color = "#e2c36c", dot = "#0b0d0c" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" aria-hidden="true">
       <path d={STAR} fill={color} />

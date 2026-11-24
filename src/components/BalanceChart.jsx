@@ -7,7 +7,7 @@ const HEIGHT = 110;
 const TOP = 10;
 const BOTTOM = 6;
 
-// Hand-drawn SVG line chart, made to sit on the dark hero panel (white line).
+// Hand-drawn SVG line chart, made to sit on the green hero panel (white line, yellow marker).
 export default function BalanceChart({ points }) {
   const [hover, setHover] = useState(null);
 
@@ -67,10 +67,10 @@ export default function BalanceChart({ points }) {
         onFocus={() => setHover(last)}
         onBlur={() => setHover(null)}
       >
-        <path d={area} fill="#ffffff" fillOpacity="0.1" />
+        <path d={area} fill="#ffffff" fillOpacity="0.12" />
         <path d={line} fill="none" stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         {hover !== null && <line x1={x(hover)} x2={x(hover)} y1="0" y2={HEIGHT} stroke="#ffffff" strokeOpacity="0.4" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
-        <circle cx={x(active)} cy={y(activePoint.balance)} r="5" fill="#ffffff" stroke="#123b8f" strokeWidth="2" />
+        <circle cx={x(active)} cy={y(activePoint.balance)} r="6" fill="#fbf38c" stroke="#173b2c" strokeWidth="2.5" />
       </svg>
       <div className="chart__axis" aria-hidden="true">
         {labels.map((label) => (

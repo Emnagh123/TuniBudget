@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { logout } from "./services/index.js";
+import { getCurrentUser, logout, setUnauthenticatedHandler } from "./services/index.js";
 import NavBar from "./components/NavBar.jsx";
 import Toast from "./components/Toast.jsx";
+import { Loading } from "./components/StateMessage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import AccountsPage from "./pages/AccountsPage.jsx";
 import TransferPage from "./pages/TransferPage.jsx";
 import HistoryPage from "./pages/HistoryPage.jsx";
 import BudgetsPage from "./pages/BudgetsPage.jsx";
+import AdminPage from "./pages/AdminPage.jsx";
 
 const PAGE_TITLES = {
   dashboard: "Dashboard",
@@ -15,6 +17,7 @@ const PAGE_TITLES = {
   transfer: "Transfer",
   history: "History",
   budgets: "Budgets",
+  admin: "Admin",
 };
 
 // All shared state lives here and goes down through props (no Context, no router):
@@ -22,12 +25,14 @@ const PAGE_TITLES = {
 //   page    which page is displayed
 //   version a counter that pages watch: when it changes they reload their data
 //   toast   the short message shown in the corner
+//   checking true while the app asks the server whether the session cookie is still valid
 export default function App() {
   const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(true);
   const [page, setPage] = useState("dashboard");
   const [version, setVersion] = useState(0);
   const [toast, setToast] = useState(null);
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
     document.title = user ? PAGE_TITLES[page] + " - TuniBudget" : "TuniBudget";
@@ -36,6 +41,16 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  // On load: restore the session (the cookie is HttpOnly, so only the server can read it).
+  // Later, when any call answers "session ended", go back to the login page.
+  useEffect(() => {
+    setUnauthenticatedHandler(() => setUser(null));
+    getCurrentUser()
+      .then((current) => setUser(current))
+      .catch(() => setUser(null))
+      .finally(() => setChecking(false));
+  }, []);
 
   function refresh() {
     setVersion((v) => v + 1);
@@ -52,11 +67,12 @@ export default function App() {
   }
 
   async function handleLogout() {
-    await logout();
+    await logout().catch(() => {});
     setToast(null);
     setUser(null);
   }
 
+  if (checking) return <Loading label="Opening TuniBudget" />;
   if (!user) return <AuthPage theme={theme} onThemeToggle={() => setTheme(theme === "light" ? "dark" : "light")} onAuthenticated={handleAuthenticated} />;
 
   const shared = { user, version, onChange: refresh, notify, goTo: setPage };
@@ -73,6 +89,7 @@ export default function App() {
         {page === "transfer" && <TransferPage {...shared} />}
         {page === "history" && <HistoryPage {...shared} />}
         {page === "budgets" && <BudgetsPage {...shared} />}
+        {page === "admin" && user.role === "admin" && <AdminPage {...shared} />}
       </main>
       <Toast toast={toast} onClose={() => setToast(null)} />
     </>
