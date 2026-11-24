@@ -166,6 +166,17 @@
   align-self: center;
   font-size: 14px;
 }
+.auth__demo-note {
+  margin-top: -8px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+.auth__demo-note code {
+  color: var(--ink);
+  font-family: inherit;
+  font-weight: 600;
+}
 
 @media (max-width: 860px) {
   .auth {

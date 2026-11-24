@@ -194,7 +194,7 @@ The response (or the error body) contains the `steps` journal (`begin`, `lock`, 
 
 ## 9. Design conventions
 
-- Visual identity: dark "night" surfaces (`#0B0D0C`) lit by an emerald aurora glow, a green gradient balance card, gold accents and a soft-yellow pill call to action with a dark round arrow; the zellige eight-point star stays on the balance hero and the login panel. Dark mode is the default; a light mode is kept.
+- Visual identity: light mode is the default. Fixed hero panels retain dark "night" surfaces (`#0B0D0C`) lit by an emerald aurora glow, alongside a green gradient balance card, gold accents and a soft-yellow pill call to action with a dark round arrow; the zellige eight-point star stays on the balance hero and the login panel. Dark mode remains available through the theme toggle.
 - Tokens (in `global.css`): background `#0B0D0C` / card `#141816` (dark), `#F1F3EE` / `#FFFFFF` (light); accent emerald (`--blue` `#5CC893` dark, `#1F7A55` light; the historic token names are kept), call to action `--cta` `#FBF38C`, gold `--gold` `#E2C36C`, green (money in), amber (near the limit), red (exceeded). Shapes: 24 px panels, pill buttons and tabs. Credit/debit are always told apart by a sign (+ / −) as well as colour.
 - Millimes are a first-class part of every amount: the integer part is large, the `.350` part is lighter.
 - Charts: thin 2 px lines, bars with a rounded data end, one hue for one series, direct labels only where useful, hover details, and a text alternative (`aria-label`).

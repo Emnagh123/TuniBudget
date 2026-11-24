@@ -33,6 +33,7 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
 
   const isLogin = mode === "login";
   const showTabs = mode === "login" || mode === "register";
+  const showDemoLogin = import.meta.env.DEV && isLogin;
 
   function update(field, value) {
     setForm({ ...form, [field]: value });
@@ -73,6 +74,19 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
       setError(err.message);
     }
     setBusy(false);
+  }
+
+  async function tryDemo() {
+    setError("");
+    setNotice("");
+    setBusy(true);
+    try {
+      const result = await login("amine@tunibudget.tn", "demo1234");
+      onAuthenticated(result.user);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
   }
 
   return (
@@ -158,10 +172,20 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
             {busy ? "Please wait…" : SUBMIT_LABELS[mode]}
           </button>
 
+          {showDemoLogin && (
+            <>
+              <button type="button" className="btn btn--block" onClick={tryDemo} disabled={busy}>
+                Try the demo account
+              </button>
+              <p className="auth__demo-note">Uses the seeded Amine demo profile. Run <code>npm run seed</code> first.</p>
+            </>
+          )}
           {isLogin && (
-            <button type="button" className="link-button auth__switch" onClick={() => switchMode("forgot")}>
-              Forgot your password?
-            </button>
+            <>
+              <button type="button" className="link-button auth__switch" onClick={() => switchMode("forgot")}>
+                Forgot your password?
+              </button>
+            </>
           )}
           {(mode === "forgot" || mode === "reset") && (
             <button type="button" className="link-button auth__switch" onClick={() => switchMode("login")}>

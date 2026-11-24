@@ -32,7 +32,7 @@ export default function App() {
   const [page, setPage] = useState("dashboard");
   const [version, setVersion] = useState(0);
   const [toast, setToast] = useState(null);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
     document.title = user ? PAGE_TITLES[page] + " - TuniBudget" : "TuniBudget";

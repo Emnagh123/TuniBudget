@@ -67,6 +67,8 @@ Password for both: `demo1234`
 
 **Admin login (development only):** `admin@tunibudget.tn` with password `admin1234`. Admins see an extra **Admin** tab with the security activity, the user list (log a user out everywhere, disable or enable an account) and the security log. To make your own account an admin, register it, then run `npm run make-admin -- you@example.com` and log in again.
 
+In development, **Try the demo account** on the login screen signs in as Amine using the seeded demo data. Run `npm run seed` first; this loads the demo data into your development database. The app opens in light mode by default, and the theme toggle can switch to dark mode.
+
 In development, "Forgot your password?" prints the reset link in the server console instead of sending an email.
 
 ## Security
