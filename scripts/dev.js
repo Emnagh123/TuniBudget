@@ -8,7 +8,8 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const vite = fileURLToPath(new URL("../node_modules/vite/bin/vite.js", import.meta.url));
 
 const children = [
-  spawn(process.execPath, ["server/index.js"], { cwd: root, stdio: "inherit" }),
+  // --watch: the API restarts by itself when a file in server/ changes (no stale code after an edit).
+  spawn(process.execPath, ["--watch-path=server", "--watch-preserve-output", "server/index.js"], { cwd: root, stdio: "inherit" }),
   spawn(process.execPath, [vite, "--open"], { cwd: root, stdio: "inherit" }),
 ];
 

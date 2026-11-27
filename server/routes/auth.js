@@ -10,12 +10,22 @@ import { endAllSessions, endSession, startSession } from "../security/sessions.j
 import { requireAuth } from "../security/middleware.js";
 import { newId, randomToken, sha256 } from "../security/tokens.js";
 import * as v from "../validate.js";
+import { perksOf, planOf } from "../plans.js";
 
 const MAX_FAILURES = 5;
 const LOCK_MINUTES = 15;
 
 export function publicUser(user) {
-  return { _id: user._id, fullName: user.fullName, email: user.email, role: user.role || "user" };
+  const plan = planOf(user);
+  return {
+    _id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role || "user",
+    plan, // "free" or "premium" (admins count as premium)
+    premiumUntil: user.role === "admin" ? null : plan === "premium" ? user.premiumUntil : null,
+    perks: perksOf(user),
+  };
 }
 
 // Failed logins are counted per email (even for emails that do not exist, so the lock does not
@@ -58,6 +68,8 @@ export function authRoutes(config) {
       email: mail,
       passwordHash: await hashPassword(password),
       role: "user", // never taken from the request: admins are made with `npm run make-admin`
+      plan: "free", // becomes "premium" only through a payment (routes/billing.js)
+      premiumUntil: null,
       createdAt: now,
       passwordChangedAt: now,
       lastLoginAt: now, // registering logs the new user in

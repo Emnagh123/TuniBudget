@@ -6,6 +6,7 @@ import { ApiError } from "../errors.js";
 import { moneyLimiter } from "../security/rateLimits.js";
 import { newId, nextSeq } from "../security/tokens.js";
 import * as v from "../validate.js";
+import { perksOf } from "../plans.js";
 
 const ACCOUNT_TYPES = ["checking", "savings", "cash"];
 const nameRule = { min: 2, max: 40, message: "The account name needs 2 to 40 characters." };
@@ -55,7 +56,12 @@ export function accountRoutes() {
     const userId = req.user._id;
 
     const open = await collections.accounts.countDocuments({ userId, status: "active" });
-    if (open >= 20) throw new ApiError("VALIDATION_ERROR", "You can have at most 20 open accounts.");
+    const max = perksOf(req.user).maxOpenAccounts;
+    if (open >= max) {
+      throw max < 100
+        ? new ApiError("PLAN_LIMIT", `The free plan allows ${max} open accounts. Go Premium for unlimited accounts.`, { feature: "maxOpenAccounts" })
+        : new ApiError("VALIDATION_ERROR", `You can have at most ${max} open accounts.`);
+    }
 
     const account = await inTransaction(async (session) => {
       const now = new Date();

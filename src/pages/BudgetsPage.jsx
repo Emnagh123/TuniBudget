@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { getBudgets, getCategories, removeBudget, setBudget } from "../services/index.js";
+import { copyPreviousBudgets, getBudgets, getCategories, removeBudget, setBudget } from "../services/index.js";
 import { addMonths, currentMonthKey, monthLabel, monthName } from "../utils/dates.js";
 import { formatMillimes, formatTnd, parseTndToMillimes } from "../utils/money.js";
 import BudgetStatus from "../components/BudgetStatus.jsx";
 import Icon from "../components/Icon.jsx";
 import Meter from "../components/Meter.jsx";
+import PremiumHint from "../components/PremiumHint.jsx";
 import { EmptyState, ErrorState, Loading } from "../components/StateMessage.jsx";
 
 const MONTHS_BACK = 11;
 const MONTHS_AHEAD = 1;
 
-export default function BudgetsPage({ version, onChange, notify }) {
+export default function BudgetsPage({ user, version, onChange, notify, goTo }) {
   const thisMonth = currentMonthKey();
   const [month, setMonth] = useState(thisMonth);
   const [data, setData] = useState(null); // { budgets, categories }
@@ -20,6 +21,7 @@ export default function BudgetsPage({ version, onChange, notify }) {
   const [form, setForm] = useState({ categoryId: "", limit: "" });
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [copying, setCopying] = useState(false);
 
   const [editing, setEditing] = useState(null); // { id, categoryId, limit }
   const [editError, setEditError] = useState("");
@@ -39,8 +41,10 @@ export default function BudgetsPage({ version, onChange, notify }) {
     };
   }, [month, version, attempt]);
 
-  const canGoBack = month > addMonths(thisMonth, -MONTHS_BACK);
-  const canGoForward = month < addMonths(thisMonth, MONTHS_AHEAD);
+  // The free plan only plans the current month (the server refuses the others).
+  const anyMonth = user.perks.budgetsAnyMonth;
+  const canGoBack = anyMonth && month > addMonths(thisMonth, -MONTHS_BACK);
+  const canGoForward = anyMonth && month < addMonths(thisMonth, MONTHS_AHEAD);
 
   function changeMonth(delta) {
     setMonth(addMonths(month, delta));
@@ -107,6 +111,20 @@ export default function BudgetsPage({ version, onChange, notify }) {
     }
   }
 
+  async function handleCopyPrevious() {
+    setCopying(true);
+    try {
+      const result = await copyPreviousBudgets(month);
+      if (result.found === 0) notify("info", "There were no budgets in " + monthName(addMonths(month, -1)) + " to copy.");
+      else notify("success", result.copied + " budget" + (result.copied === 1 ? "" : "s") + " copied from " + monthName(addMonths(month, -1)) + ".");
+      onChange();
+    } catch (err) {
+      notify("error", err.message);
+    } finally {
+      setCopying(false);
+    }
+  }
+
   async function handleRemove(budget) {
     try {
       await removeBudget(budget._id);
@@ -140,8 +158,28 @@ export default function BudgetsPage({ version, onChange, notify }) {
         <div>
           <h1 className="page-title">Budgets</h1>
         </div>
-        <div className="page-actions">{monthSwitcher}</div>
+        <div className="page-actions">
+          {user.perks.copyBudgets ? (
+            <button type="button" className="btn btn--small" onClick={handleCopyPrevious} disabled={copying}>
+              {copying ? "Copying…" : "Copy last month"}
+            </button>
+          ) : (
+            <button type="button" className="btn btn--small btn--locked" onClick={() => goTo("premium")} title="Premium feature">
+              <Icon name="lock" />
+              Copy last month
+            </button>
+          )}
+          {monthSwitcher}
+        </div>
       </div>
+
+      {!anyMonth && (
+        <div style={{ marginBottom: 20 }}>
+          <PremiumHint goTo={goTo} compact>
+            The free plan budgets the current month. Premium plans any month.
+          </PremiumHint>
+        </div>
+      )}
 
       {(exceeded.length > 0 || near.length > 0) && (
         <div className="stack" style={{ marginBottom: 20 }}>

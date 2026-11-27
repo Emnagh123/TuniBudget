@@ -16,6 +16,8 @@ const NAMES = [
   "loginThrottle",
   "auditLogs",
   "idempotencyKeys",
+  "payments",
+  "offers",
 ];
 
 function newClient(config) {
@@ -78,6 +80,11 @@ async function createIndexes() {
     c.auditLogs.createIndex({ at: 1 }, { expireAfterSeconds: 180 * 24 * 3600 }),
     c.auditLogs.createIndex({ ip: 1, event: 1, at: -1 }),
     c.auditLogs.createIndex({ level: 1, at: -1 }),
+    c.payments.createIndex({ userId: 1, createdAt: -1 }),
+    c.payments.createIndex({ createdAt: -1 }),
+    // Promo codes are unique; offers without a code (automatic ones) are not part of this index.
+    c.offers.createIndex({ code: 1 }, { unique: true, partialFilterExpression: { code: { $type: "string" } } }),
+    c.offers.createIndex({ active: 1, code: 1 }),
   ]);
 }
 

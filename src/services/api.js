@@ -21,6 +21,36 @@ function queryString(params = {}) {
   return text ? "?" + text : "";
 }
 
+/**
+ * Downloads a file from the API (the CSV export). It goes through fetch, not a plain link, so the
+ * request carries the CSRF header and a refused request shows a readable error.
+ */
+export async function downloadFile(path, { query, filename }) {
+  let response;
+  try {
+    response = await fetch(API_URL + path + queryString(query), {
+      headers: { "X-Requested-With": "TuniBudget" },
+      credentials: "same-origin",
+    });
+  } catch {
+    throw new ServiceError("NETWORK_ERROR", "Cannot reach the server. Check your connection and try again.");
+  }
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    const { code = "SERVER_ERROR", message = "The download failed. Please try again.", ...extra } = (data && data.error) || {};
+    if (code === "UNAUTHENTICATED") onUnauthenticated();
+    throw new ServiceError(code, message, extra);
+  }
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export async function request(method, path, { body, query, idempotent = false } = {}) {
   const headers = { Accept: "application/json", "X-Requested-With": "TuniBudget" };
   if (body !== undefined) headers["Content-Type"] = "application/json";

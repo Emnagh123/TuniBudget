@@ -13,7 +13,9 @@ import { transferRoutes } from "./routes/transfers.js";
 import { budgetRoutes } from "./routes/budgets.js";
 import { analyticsRoutes } from "./routes/analytics.js";
 import { adminRoutes } from "./routes/admin.js";
+import { billingRoutes, publicBillingRoutes } from "./routes/billing.js";
 
+const STARTED_AT = new Date().toISOString();
 const DIST = fileURLToPath(new URL("../dist", import.meta.url));
 
 export function createApp(config) {
@@ -53,7 +55,8 @@ export function createApp(config) {
 
   // --- API ---
   app.use("/api", noStore, apiLimiter, express.json({ limit: "10kb", strict: true }), injectionGuard, csrfGuard(config));
-  app.get("/api/health", (req, res) => res.json({ ok: true }));
+  // `version` changes when the API gains features: an old server still running shows an old number.
+  app.get("/api/health", (req, res) => res.json({ ok: true, version: "premium-offers-1", startedAt: STARTED_AT }));
   app.use("/api/auth", authRoutes(config));
   app.use("/api/accounts", requireAuth, accountRoutes());
   app.use("/api/categories", requireAuth, categoryRoutes());
@@ -61,6 +64,8 @@ export function createApp(config) {
   app.use("/api/transfers", requireAuth, transferRoutes());
   app.use("/api/budgets", requireAuth, budgetRoutes());
   app.use("/api/analytics", requireAuth, analyticsRoutes());
+  app.use("/api/billing/public", publicBillingRoutes());
+  app.use("/api/billing", requireAuth, billingRoutes());
   app.use("/api/admin", requireAuth, requireAdmin(config), adminRoutes());
   app.use("/api", (req, res) => sendError(res, "NOT_FOUND", "This API route does not exist."));
 

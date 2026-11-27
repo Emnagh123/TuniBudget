@@ -100,6 +100,12 @@ Code style:
 - Month summary: income, expenses, what is left.
 - Spending by category (ranked bars), budget alerts, latest movements.
 
+### 6. Plans and payments
+
+- Three kinds of user: free user, Premium user (paid), admin (every Premium feature, plus the Admin page).
+- Limits and prices live only in `server/plans.js`; routes enforce them with `perksOf(req.user)` and the `PLAN_LIMIT` error.
+- Simulated checkout in `server/routes/billing.js` + `server/card.js`: the server computes the price, the card number and CVC are never stored, a payment and the plan change are one transaction.
+
 ## 5. Money and data model
 
 - **All amounts are integers in millimes** (1 TND = 1000 millimes). Never use floats for money.

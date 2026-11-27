@@ -62,14 +62,28 @@ Password for both: `demo1234`
 
 | Email | Data |
 | --- | --- |
-| `amine@tunibudget.tn` | 3 accounts, 4 months of history |
-| `salma@tunibudget.tn` | 2 accounts |
+| `amine@tunibudget.tn` | **Premium** (paid yearly), 3 accounts, 4 months of history |
+| `salma@tunibudget.tn` | **Free** plan, 2 accounts |
 
 **Admin login (development only):** `admin@tunibudget.tn` with password `admin1234`. Admins see an extra **Admin** tab with the security activity, the user list (log a user out everywhere, disable or enable an account) and the security log. To make your own account an admin, register it, then run `npm run make-admin -- you@example.com` and log in again.
 
 In development, **Try the demo account** on the login screen signs in as Amine using the seeded demo data. Run `npm run seed` first; this loads the demo data into your development database. The app opens in light mode by default, and the theme toggle can switch to dark mode.
 
 In development, "Forgot your password?" prints the reset link in the server console instead of sending an email.
+
+### Plans: Free, Premium and Admin
+
+| | Free (0 TND) | Premium (9.900 TND/month or 99.000 TND/year) | Admin |
+| --- | --- | --- | --- |
+| Open accounts | up to 3 | unlimited | unlimited |
+| History | last 3 months | full + CSV export | full + CSV export |
+| Budgets | current month | any month + copy last month | any month + copy last month |
+| Balance chart | 30 / 90 days | 30 / 90 / 365 days | 30 / 90 / 365 days |
+| Extra | | gold Premium badge | Admin page, every user's plan and payments |
+
+The **Premium** tab has the plans and a **simulated checkout** (no real money). Test cards: `4242 4242 4242 4242` is accepted, `4000 0000 0000 0002` is declined, `4000 0000 0000 9995` has insufficient funds, `9788 0000 0000 0009` is an e-DINAR card (Tunisian card; e-DINAR numbers start with 9788 in this simulation); use any future expiry and any CVC. Each payment (paid or declined) is saved in the `payments` collection with only the card brand and last 4 digits. The price is decided by the server (`server/plans.js`) and every limit is checked by the server, not only hidden in the page.
+
+**Discounts and offers (admin):** on the Admin page an admin creates offers: a percentage off (1 to 100 %), for monthly, yearly or both, with an optional promo code (without a code the discount applies automatically), end date, maximum number of uses and target user (by email). Offers can be paused and restarted. The seed adds the code `WELCOME20` (20 % off). The discount is recomputed on the server inside the payment transaction (`server/offers.js`). The Admin page also shows, for each user, how many payments they made, how much they paid, and the list of their payments.
 
 ## Security
 

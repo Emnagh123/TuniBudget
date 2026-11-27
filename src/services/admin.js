@@ -14,6 +14,24 @@ export function getAuditLogs({ level = "", page = 1, limit = 25 } = {}) {
   return request("GET", "/admin/audit-logs", { query: { level, page, limit } });
 }
 
+/** Every payment (paid and declined) with the payer, and the total paid. */
+export function getAdminPayments() {
+  return request("GET", "/admin/payments");
+}
+
+export function getAdminOffers() {
+  return request("GET", "/admin/offers");
+}
+
+/** { name, code?, percentOff, intervals, endsAt?, maxUses?, targetEmail? } */
+export function createOffer(offer) {
+  return request("POST", "/admin/offers", { body: offer });
+}
+
+export function setOfferActive(offerId, active) {
+  return request("POST", "/admin/offers/" + encodeURIComponent(offerId) + "/active", { body: { active } });
+}
+
 export function revokeUserSessions(userId) {
   return request("POST", "/admin/users/" + encodeURIComponent(userId) + "/revoke-sessions");
 }

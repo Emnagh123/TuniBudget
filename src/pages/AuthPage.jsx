@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { login, register, requestPasswordReset, resetPassword } from "../services/index.js";
+import { checkout, login, register, requestPasswordReset, resetPassword } from "../services/index.js";
+import { Checkout, EMPTY_CHECKOUT, cardFilled, cardPayload, priceFor } from "../components/CardForm.jsx";
+import { formatTnd } from "../utils/money.js";
 import { StarMark, StarPattern } from "../components/StarMark.jsx";
 import Icon from "../components/Icon.jsx";
 import ThemeToggle from "../components/ThemeToggle.jsx";
@@ -25,6 +27,12 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  // Sign-up only: the plan the new user wants. Premium opens the checkout right after the account
+  // is created (the account always starts free; only a payment makes it Premium).
+  const [plan, setPlan] = useState("free");
+  const [pay, setPay] = useState(EMPTY_CHECKOUT); // { interval, card, promo }
+  const [prices, setPrices] = useState(null);
+  const wantsPremium = mode === "register" && plan === "premium";
 
   // Remove the token from the address bar, so it is not kept in the history or shared by mistake.
   useEffect(() => {
@@ -54,11 +62,26 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
       setError("The two passwords are not the same.");
       return;
     }
+    if (wantsPremium && !cardFilled(pay.card)) {
+      setError("Fill in your card details to pay for Premium, or choose the Free plan.");
+      return;
+    }
     setBusy(true);
     try {
       if (mode === "login" || mode === "register") {
         const result = isLogin ? await login(form.email, form.password) : await register(form);
-        onAuthenticated(result.user);
+        if (!wantsPremium) {
+          onAuthenticated(result.user);
+          return;
+        }
+        // The account exists now; pay for Premium with the card typed in the same form.
+        // Paid or not, the next screen is the payment result (a failed payment leaves a Free account).
+        try {
+          const paid = await checkout({ interval: pay.interval, card: cardPayload(pay.card), promoCode: pay.promo ? pay.promo.code : "" });
+          onAuthenticated(paid.user, { goPremium: true, paymentResult: { ok: true, payment: paid.payment } });
+        } catch (payErr) {
+          onAuthenticated(result.user, { goPremium: true, paymentResult: { ok: false, message: payErr.message, card: payErr.card || null } });
+        }
         return;
       }
       if (mode === "forgot") {
@@ -161,6 +184,40 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
             </label>
           )}
 
+          {mode === "register" && (
+            <fieldset className="plan-pick">
+              <legend>Choose your plan</legend>
+              <button type="button" className="plan-pick__option" aria-pressed={plan === "free"} onClick={() => setPlan("free")}>
+                <span className="plan-pick__name">Free</span>
+                <span className="plan-pick__price">0 TND</span>
+                <span className="plan-pick__perk">3 accounts · 3 months of history</span>
+              </button>
+              <button type="button" className="plan-pick__option plan-pick__option--premium" aria-pressed={plan === "premium"} onClick={() => setPlan("premium")}>
+                <span className="plan-pick__name">
+                  Premium <span className="premium-badge">Best value</span>
+                </span>
+                <span className="plan-pick__price">from 9.900 TND / month</span>
+                <span className="plan-pick__perk">Unlimited accounts · full history · CSV</span>
+              </button>
+            </fieldset>
+          )}
+
+          {wantsPremium && (
+            <fieldset className="auth__payment">
+              <legend className="sr-only">Payment method</legend>
+              <Checkout
+                value={pay}
+                onChange={(next) => {
+                  setPay(next);
+                  setError("");
+                }}
+                onPrices={setPrices}
+                loggedIn={false}
+                idPrefix="signup-card"
+              />
+            </fieldset>
+          )}
+
           {error && (
             <p className="form-error" role="alert">
               <Icon name="warning" />
@@ -169,7 +226,7 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
           )}
 
           <button type="submit" className="btn btn--primary btn--block" disabled={busy}>
-            {busy ? "Please wait…" : SUBMIT_LABELS[mode]}
+            {busy ? "Please wait…" : wantsPremium ? "Start Premium" + (prices ? " · " + formatTnd(priceFor(prices, pay).amount) : "") : SUBMIT_LABELS[mode]}
           </button>
 
           {showDemoLogin && (
@@ -177,7 +234,7 @@ export default function AuthPage({ theme, onThemeToggle, onAuthenticated }) {
               <button type="button" className="btn btn--block" onClick={tryDemo} disabled={busy}>
                 Try the demo account
               </button>
-              <p className="auth__demo-note">Uses the seeded Amine demo profile. Run <code>npm run seed</code> first.</p>
+              <p className="auth__demo-note">Explore TuniBudget with a ready-made account full of sample data.</p>
             </>
           )}
           {isLogin && (

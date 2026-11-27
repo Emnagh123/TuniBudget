@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
-import { addOperation, getAccounts, getCategories, getTransactions } from "../services/index.js";
-import { formatDay } from "../utils/dates.js";
+import { addOperation, exportTransactionsCsv, getAccounts, getCategories, getTransactions } from "../services/index.js";
+import { formatDay, formatDayYear } from "../utils/dates.js";
 import { formatMillimes, parseTndToMillimes } from "../utils/money.js";
 import { Amount } from "../components/Money.jsx";
 import Icon from "../components/Icon.jsx";
 import Pagination from "../components/Pagination.jsx";
 import DatePicker from "../components/DatePicker.jsx";
+import PremiumHint from "../components/PremiumHint.jsx";
 import { EmptyState, ErrorState, Loading } from "../components/StateMessage.jsx";
 
 const PAGE_SIZE = 10;
 const NO_FILTERS = { accountId: "", type: "all", categoryId: "", from: "", to: "", min: "", max: "" };
 const EMPTY_FORM = { accountId: "", kind: "expense", categoryId: "", amount: "", description: "" };
 
-export default function HistoryPage({ version, onChange, notify }) {
+export default function HistoryPage({ user, version, onChange, notify, goTo }) {
   const [meta, setMeta] = useState(null); // { accounts, categories }
   const [metaError, setMetaError] = useState("");
 
@@ -25,6 +26,7 @@ export default function HistoryPage({ version, onChange, notify }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,6 +97,19 @@ export default function HistoryPage({ version, onChange, notify }) {
     setPage(1);
   }
 
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const { page: _page, limit: _limit, ...filtersOnly } = query;
+      await exportTransactionsCsv(filtersOnly);
+      notify("success", "Your history was downloaded as a CSV file.");
+    } catch (err) {
+      notify("error", err.message);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   async function submitOperation(event) {
     event.preventDefault();
     setFormError("");
@@ -122,6 +137,16 @@ export default function HistoryPage({ version, onChange, notify }) {
         <div>
           <h1 className="page-title">History</h1>
         </div>
+        {user.perks.csvExport ? (
+          <button type="button" className="btn" onClick={handleExport} disabled={exporting}>
+            {exporting ? "Exporting…" : "Export CSV"}
+          </button>
+        ) : (
+          <button type="button" className="btn btn--locked" onClick={() => goTo("premium")} title="Premium feature">
+            <Icon name="lock" />
+            Export CSV
+          </button>
+        )}
       </div>
 
       <div className="columns">
@@ -200,6 +225,11 @@ export default function HistoryPage({ version, onChange, notify }) {
                 <Icon name="warning" />
                 {rangeInvalid ? "The start date is after the end date, so the dates are ignored." : "An amount filter is not a valid number, so it is ignored."}
               </p>
+            )}
+            {list && list.historyFrom && (
+              <PremiumHint goTo={goTo} compact>
+                The free plan shows movements since {formatDayYear(list.historyFrom)}. Premium shows your full history.
+              </PremiumHint>
             )}
           </section>
 

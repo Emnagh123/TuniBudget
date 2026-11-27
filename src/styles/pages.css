@@ -599,3 +599,557 @@
 .admin__inline-badge {
   margin-left: 8px;
 }
+
+/* ---------- Premium: plan cards, checkout, badge and upgrade hints ---------- */
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #f6e27a 0%, var(--gold) 100%);
+  color: #2a2208;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: var(--shadow-cta);
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: 1px solid var(--line);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.plan-card:hover {
+  transform: translateY(-3px);
+}
+.plan-card--premium {
+  background: var(--hero-gradient);
+  color: var(--on-hero);
+  border-color: transparent;
+}
+.plan-card--premium .panel__title,
+.plan-card--premium .muted {
+  color: var(--on-hero);
+}
+.plan-card--premium .plan-card__list .icon {
+  color: var(--cta);
+}
+.plan-card--current {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), var(--shadow-panel);
+}
+.plan-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.plan-card__price {
+  font-weight: 600;
+  opacity: 0.9;
+}
+.plan-card__amount {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.plan-card__list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.plan-card__list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.plan-card__list .icon {
+  flex: none;
+  color: var(--blue);
+}
+
+.plan-save {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--green-tint);
+  color: var(--green-text);
+  font-size: 11px;
+}
+
+.plan-table {
+  width: 100%;
+}
+.plan-table td .icon {
+  color: var(--blue);
+}
+
+.checkout-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--card-raised);
+  font-weight: 600;
+}
+.checkout-total .num {
+  font-size: 22px;
+  font-weight: 700;
+}
+.checkout-row {
+  flex-wrap: nowrap;
+}
+.checkout-row .field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.test-cards {
+  line-height: 1.5;
+}
+
+.premium-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: 1px dashed var(--gold);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  font-weight: 600;
+}
+.premium-hint > span {
+  flex: 1;
+}
+.premium-hint .icon {
+  flex: none;
+  color: var(--gold);
+}
+.premium-hint--compact {
+  margin-top: 14px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.btn--locked .icon,
+.segmented__option .icon {
+  margin-right: 6px;
+  color: var(--gold);
+}
+.btn--locked {
+  border-style: dashed;
+  border-color: var(--gold);
+}
+
+/* ---------- sign-up plan choice ---------- */
+.plan-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.plan-pick legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.plan-pick__option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.plan-pick__option:hover {
+  transform: translateY(-2px);
+}
+.plan-pick__option[aria-pressed="true"] {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+.plan-pick__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+.plan-pick__name .premium-badge {
+  padding: 1px 8px;
+  font-size: 10px;
+}
+.plan-pick__price {
+  font-weight: 600;
+  font-size: 14px;
+}
+.plan-pick__perk {
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 420px) {
+  .plan-pick {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- payment result (success / failure) ---------- */
+.payment-result-wrap {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  padding: 24px 0;
+}
+.payment-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(100%, 520px);
+  padding: 40px 32px;
+  text-align: center;
+  animation: result-in 0.35s ease both;
+}
+.payment-result__icon {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  animation: result-pop 0.5s 0.1s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.payment-result--ok .payment-result__icon {
+  background: var(--green-tint);
+  color: var(--green);
+  box-shadow: 0 0 0 10px color-mix(in srgb, var(--green) 10%, transparent);
+}
+.payment-result--failed .payment-result__icon {
+  background: var(--red-tint);
+  color: var(--red);
+  box-shadow: 0 0 0 10px color-mix(in srgb, var(--red) 10%, transparent);
+}
+.payment-result__title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.payment-result__text {
+  color: var(--muted);
+  max-width: 380px;
+}
+.payment-result__receipt {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  margin: 4px 0 0;
+  border-radius: 16px;
+  background: var(--card-raised);
+  overflow: hidden;
+}
+.payment-result__receipt > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+}
+.payment-result__receipt > div:first-child {
+  border-top: 0;
+}
+.payment-result__receipt dt {
+  color: var(--muted);
+}
+.payment-result__receipt dd {
+  margin: 0;
+  font-weight: 600;
+}
+.payment-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+.paying__dots::after {
+  content: "";
+  animation: paying-dots 1.2s steps(4, end) infinite;
+}
+@keyframes paying-dots {
+  0% { content: ""; }
+  25% { content: "."; }
+  50% { content: ".."; }
+  75% { content: "..."; }
+}
+@keyframes result-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes result-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .payment-result,
+  .payment-result__icon,
+  .paying__dots::after {
+    animation: none;
+  }
+}
+
+/* ---------- payment method: interval choice and card fields ---------- */
+.interval-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.interval-pick__option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.interval-pick__option:hover {
+  transform: translateY(-2px);
+}
+.interval-pick__option[aria-pressed="true"] {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+.interval-pick__label {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+.interval-pick__price {
+  color: var(--muted);
+  font-size: 13px;
+}
+.card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.card-fields__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.card-number {
+  position: relative;
+  display: block;
+}
+.card-number .input {
+  width: 100%;
+  padding-right: 64px;
+}
+.card-number__brand {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--chip);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.card-number__brand--on {
+  background: var(--deep);
+  color: #fff;
+}
+.test-cards .icon {
+  vertical-align: -1px;
+}
+
+/* sign-up: the payment block under the plan choice */
+.auth__payment {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--gold);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--gold) 6%, transparent);
+  animation: result-in 0.3s ease both;
+}
+.auth__payment legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+.auth__panel {
+  overflow-y: auto;
+}
+
+/* navbar: "Go Premium" tab and the clickable badge */
+.tab--premium {
+  color: var(--gold);
+  font-weight: 700;
+}
+.premium-badge-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+.premium-badge-button:hover {
+  transform: translateY(-1px) scale(1.04);
+}
+
+/* ---------- checkout (card, plan summary, promo, terms) ---------- */
+.checkout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.checkout__step {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.checkout__title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.card-logos {
+  display: flex;
+  gap: 8px;
+}
+.card-logo {
+  display: inline-grid;
+  place-items: center;
+  min-width: 52px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.card-logo--visa {
+  color: #1a1f71;
+  font-style: italic;
+  font-size: 13px;
+}
+.card-logo--mastercard {
+  color: #eb001b;
+}
+/* e-DINAR (La Poste Tunisienne): yellow and blue */
+.card-logo--edinar {
+  background: #ffd200;
+  border-color: #ffd200;
+  color: #003d7c;
+}
+.card-logo--dim {
+  opacity: 0.3;
+  transform: scale(0.94);
+}
+.card-number .icon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: var(--muted);
+}
+.card-number .input {
+  padding-right: 40px;
+}
+.plan-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--card-raised);
+}
+.plan-summary__price {
+  font-weight: 700;
+}
+.plan-summary__price s {
+  margin-right: 4px;
+  font-weight: 500;
+}
+.plan-summary__name {
+  color: var(--muted);
+  font-size: 14px;
+}
+.plan-summary__offer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--green-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.plan-summary__change {
+  font-weight: 700;
+}
+.promo__row {
+  display: flex;
+  gap: 8px;
+}
+.promo__row .input {
+  flex: 1;
+  min-width: 0;
+  letter-spacing: 0.06em;
+}
+.promo__open {
+  align-self: flex-start;
+}
+.checkout__terms {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.checkout__terms strong {
+  color: var(--ink);
+}
+.checkout__secure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* admin */
+.admin__payer {
+  min-width: 200px;
+}

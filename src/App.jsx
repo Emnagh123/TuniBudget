@@ -10,6 +10,7 @@ import TransferPage from "./pages/TransferPage.jsx";
 import HistoryPage from "./pages/HistoryPage.jsx";
 import BudgetsPage from "./pages/BudgetsPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import PremiumPage from "./pages/PremiumPage.jsx";
 
 const PAGE_TITLES = {
   dashboard: "Dashboard",
@@ -17,6 +18,7 @@ const PAGE_TITLES = {
   transfer: "Transfer",
   history: "History",
   budgets: "Budgets",
+  premium: "Premium",
   admin: "Admin",
 };
 
@@ -33,6 +35,7 @@ export default function App() {
   const [version, setVersion] = useState(0);
   const [toast, setToast] = useState(null);
   const [theme, setTheme] = useState("light");
+  const [paymentResult, setPaymentResult] = useState(null); // payment made while signing up
 
   useEffect(() => {
     document.title = user ? PAGE_TITLES[page] + " - TuniBudget" : "TuniBudget";
@@ -60,9 +63,11 @@ export default function App() {
     setToast({ id: Date.now(), type, message });
   }
 
-  function handleAuthenticated(authenticatedUser) {
+  // goPremium: the user picked Premium when signing up, so open the checkout straight away.
+  function handleAuthenticated(authenticatedUser, { goPremium = false, paymentResult: result = null } = {}) {
     setUser(authenticatedUser);
-    setPage("dashboard");
+    setPaymentResult(result);
+    setPage(goPremium ? "premium" : "dashboard");
     refresh();
   }
 
@@ -75,20 +80,27 @@ export default function App() {
   if (checking) return <Loading label="Opening TuniBudget" />;
   if (!user) return <AuthPage theme={theme} onThemeToggle={() => setTheme(theme === "light" ? "dark" : "light")} onAuthenticated={handleAuthenticated} />;
 
-  const shared = { user, version, onChange: refresh, notify, goTo: setPage };
+  // onUserChange: after a payment the plan changes, so the new user (with its perks) replaces the old one.
+  function goTo(next) {
+    setPaymentResult(null);
+    setPage(next);
+  }
+
+  const shared = { user, version, onChange: refresh, notify, goTo, onUserChange: setUser };
 
   return (
     <>
       <a className="skip-link" href="#content">
         Skip to content
       </a>
-      <NavBar user={user} page={page} theme={theme} onThemeToggle={() => setTheme(theme === "light" ? "dark" : "light")} onNavigate={setPage} onLogout={handleLogout} />
+      <NavBar user={user} page={page} theme={theme} onThemeToggle={() => setTheme(theme === "light" ? "dark" : "light")} onNavigate={goTo} onLogout={handleLogout} />
       <main className="main" id="content">
         {page === "dashboard" && <DashboardPage {...shared} />}
         {page === "accounts" && <AccountsPage {...shared} />}
         {page === "transfer" && <TransferPage {...shared} />}
         {page === "history" && <HistoryPage {...shared} />}
         {page === "budgets" && <BudgetsPage {...shared} />}
+        {page === "premium" && <PremiumPage {...shared} initialResult={paymentResult} />}
         {page === "admin" && user.role === "admin" && <AdminPage {...shared} />}
       </main>
       <Toast toast={toast} onClose={() => setToast(null)} />

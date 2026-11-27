@@ -5,10 +5,11 @@ import { formatTnd, parseTndToMillimes } from "../utils/money.js";
 import { BigMoney } from "../components/Money.jsx";
 import Icon from "../components/Icon.jsx";
 import { ErrorState, Loading } from "../components/StateMessage.jsx";
+import PremiumHint from "../components/PremiumHint.jsx";
 
 const TYPE_LABELS = { checking: "Checking", savings: "Savings", cash: "Cash" };
 
-export default function AccountsPage({ version, onChange, notify, goTo }) {
+export default function AccountsPage({ user, version, onChange, notify, goTo }) {
   const [accounts, setAccounts] = useState(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -41,6 +42,9 @@ export default function AccountsPage({ version, onChange, notify, goTo }) {
   const active = accounts.filter((a) => a.status === "active");
   const closed = accounts.filter((a) => a.status === "closed");
   const total = active.reduce((sum, a) => sum + a.balance, 0);
+  // Free plan: 3 open accounts. The server enforces it; this only explains it before the click.
+  const maxAccounts = user.perks.maxOpenAccounts;
+  const atLimit = user.plan === "free" && active.length >= maxAccounts;
 
   async function submitCreate(event) {
     event.preventDefault();
@@ -185,7 +189,15 @@ export default function AccountsPage({ version, onChange, notify, goTo }) {
             <h2 className="panel__title" id="new-title">
               New account
             </h2>
+            {user.plan === "free" && (
+              <p className="muted small">
+                {active.length} of {maxAccounts} open accounts on the free plan
+              </p>
+            )}
           </div>
+          {atLimit && (
+            <PremiumHint goTo={goTo}>Premium gives you unlimited accounts.</PremiumHint>
+          )}
           <label className="field">
             Account name
             <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="For example: holiday fund" />
@@ -211,7 +223,7 @@ export default function AccountsPage({ version, onChange, notify, goTo }) {
               {formError}
             </p>
           )}
-          <button type="submit" className="btn btn--primary btn--block" disabled={creating}>
+          <button type="submit" className="btn btn--primary btn--block" disabled={creating || atLimit}>
             {creating ? "Creating…" : "Create the account"}
           </button>
         </form>

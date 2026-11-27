@@ -5,6 +5,19 @@ import { ApiError } from "../errors.js";
 import { newId } from "../security/tokens.js";
 import * as v from "../validate.js";
 import { categoryNames, monthTotals } from "./analytics.js";
+import { monthKeyOf, perksOf } from "../plans.js";
+
+// Free users plan the current month only; Premium users any month (plans.js).
+function checkMonthAllowed(user, month) {
+  if (!perksOf(user).budgetsAnyMonth && month !== monthKeyOf()) {
+    throw new ApiError("PLAN_LIMIT", "Budgets for other months are a Premium feature.", { feature: "budgetsAnyMonth" });
+  }
+}
+
+function previousMonthOf(month) {
+  const [y, m] = month.split("-").map(Number);
+  return monthKeyOf(new Date(y, m - 2, 1));
+}
 
 // near: from 80 % of the limit. exceeded: from 100 %.
 function budgetStatus(spent, limit) {
@@ -20,6 +33,7 @@ export function budgetRoutes() {
   router.get("/", async (req, res) => {
     const userId = req.user._id;
     const month = v.month(req.query.month);
+    checkMonthAllowed(req.user, month);
     const [{ expensesByCategory }, names, budgets] = await Promise.all([
       monthTotals(userId, month),
       categoryNames(),
@@ -63,6 +77,7 @@ export function budgetRoutes() {
   router.put("/", async (req, res) => {
     const body = v.onlyFields(req.body, ["categoryId", "month", "limit"]);
     const month = v.month(body.month);
+    checkMonthAllowed(req.user, month);
     const categoryId = v.id(body.categoryId, { prefix: "cat", code: "CATEGORY_NOT_FOUND", message: "Choose an expense category." });
     const limit = v.millimes(body.limit, { message: "The limit must be greater than 0." });
     const category = await collections.categories.findOne({ _id: categoryId });
@@ -75,6 +90,27 @@ export function budgetRoutes() {
       { upsert: true, returnDocument: "after" }
     );
     res.json({ _id: budget._id, categoryId, month, limit });
+  });
+
+  // Premium: copies last month's limits into this month. Budgets already set this month are kept.
+  router.post("/copy-previous", async (req, res) => {
+    if (!perksOf(req.user).copyBudgets) {
+      throw new ApiError("PLAN_LIMIT", "Copying last month's budgets is a Premium feature.", { feature: "copyBudgets" });
+    }
+    const body = v.onlyFields(req.body, ["month"]);
+    const month = v.month(body.month);
+    const userId = req.user._id;
+    const previous = await collections.budgets.find({ userId, month: previousMonthOf(month) }).toArray();
+    let copied = 0;
+    for (const b of previous) {
+      const result = await collections.budgets.updateOne(
+        { userId, categoryId: b.categoryId, month },
+        { $setOnInsert: { _id: newId("bud"), limit: b.limit } },
+        { upsert: true }
+      );
+      if (result.upsertedCount) copied += 1;
+    }
+    res.json({ month, copied, found: previous.length });
   });
 
   router.delete("/:budgetId", async (req, res) => {

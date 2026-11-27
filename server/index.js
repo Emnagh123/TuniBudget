@@ -30,6 +30,20 @@ const server = config.tlsCertFile
 server.requestTimeout = 30_000;
 server.headersTimeout = 20_000;
 
+// Port already taken: almost always an older TuniBudget server still running in the background,
+// which would keep answering with old code. Say so clearly instead of a stack trace.
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(
+      `\n[server] Port ${config.port} is already used, probably by an OLD TuniBudget server still running.\n` +
+        `[server] Close it, then run npm run project again. On Windows (PowerShell):\n` +
+        `         Stop-Process -Id (Get-NetTCPConnection -LocalPort ${config.port}).OwningProcess -Force\n`
+    );
+    process.exit(1);
+  }
+  throw err;
+});
+
 server.listen(config.port, () => {
   const scheme = config.tlsCertFile ? "https" : "http";
   console.log(`[server] TuniBudget API (${config.nodeEnv}) listening on ${scheme}://localhost:${config.port}`);

@@ -3,6 +3,8 @@
 import express from "express";
 import { collections } from "../db.js";
 import * as v from "../validate.js";
+import { ApiError } from "../errors.js";
+import { perksOf } from "../plans.js";
 
 const pad = (n) => String(n).padStart(2, "0");
 const dayKey = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
@@ -76,6 +78,8 @@ export function analyticsRoutes() {
   router.get("/balance-history", async (req, res) => {
     const userId = req.user._id;
     const days = v.intParam(req.query.days, { fallback: 90, min: 7, max: 366 });
+    const maxDays = Math.max(...perksOf(req.user).chartDays);
+    if (days > maxDays) throw new ApiError("PLAN_LIMIT", "The 365-day chart is a Premium feature.", { feature: "chartDays" });
     const accountId = v.optionalId(req.query.accountId, { prefix: "acc", code: "ACCOUNT_NOT_FOUND", message: "This account does not exist." });
 
     const accounts = await collections.accounts.find(accountId ? { userId, _id: accountId } : { userId }).toArray();

@@ -16,9 +16,10 @@ import BalanceChart from "../components/BalanceChart.jsx";
 import CategoryBars from "../components/CategoryBars.jsx";
 import BudgetStatus from "../components/BudgetStatus.jsx";
 import Meter from "../components/Meter.jsx";
+import Icon from "../components/Icon.jsx";
 import { EmptyState, ErrorState, Loading } from "../components/StateMessage.jsx";
 
-const RANGES = [30, 90];
+const RANGES = [30, 90, 365]; // 365 days is Premium (the server refuses it on the free plan)
 
 export default function DashboardPage({ user, version, goTo }) {
   const month = currentMonthKey();
@@ -96,11 +97,22 @@ export default function DashboardPage({ user, version, goTo }) {
             <div className="hero__chart-head">
               <p className="hero__label">Balance over the last {days} days</p>
               <div className="segmented segmented--on-dark" role="group" aria-label="Time range">
-                {RANGES.map((range) => (
-                  <button key={range} type="button" className="segmented__option" aria-pressed={days === range} onClick={() => setDays(range)}>
+                {RANGES.map((range) => {
+                  const locked = !user.perks.chartDays.includes(range);
+                  return (
+                  <button
+                    key={range}
+                    type="button"
+                    className="segmented__option"
+                    aria-pressed={days === range}
+                    title={locked ? "Premium feature" : undefined}
+                    onClick={() => (locked ? goTo("premium") : setDays(range))}
+                  >
+                    {locked && <Icon name="lock" size={12} />}
                     {range} days
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
             <BalanceChart points={history.points} />
