@@ -240,10 +240,10 @@ export default function AdminPage({ user, version, onChange, notify }) {
                       {u.role === "admin" ? (
                         <span className="muted small">Included</span>
                       ) : u.plan === "premium" ? (
-                        <>
+                        <button type="button" className="premium-badge-button" onClick={() => showPaymentsOf(u._id)} title={"See the payments of " + u.fullName}>
                           <PremiumBadge />
                           <span className="muted small"> until {formatDayYear(u.premiumUntil)}</span>
-                        </>
+                        </button>
                       ) : (
                         <span className="tag">Free</span>
                       )}
@@ -458,9 +458,15 @@ export default function AdminPage({ user, version, onChange, notify }) {
                       {p.user ? p.user.fullName : "Deleted user"}
                       {p.user && <span className="muted small"> · {p.user.email}</span>}
                     </td>
-                    <td>Premium {p.interval}</td>
+                    <td>{p.interval ? "Premium " + p.interval : "Premium"}</td>
                     <td className="nowrap">
-                      {p.card.brand} •••• <span className="num">{p.card.last4}</span>
+                      {p.card ? (
+                        <>
+                          {p.card.brand} •••• <span className="num">{p.card.last4}</span>
+                        </>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
                     </td>
                     <td className="nowrap">{p.offer ? p.offer.name + " −" + p.offer.percentOff + "%" : <span className="muted">—</span>}</td>
                     <td>

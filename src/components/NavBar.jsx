@@ -49,7 +49,14 @@ export default function NavBar({ user, page, theme, onThemeToggle, onNavigate, o
           </span>
           <span className="who__name">{user.fullName}</span>
           {user.plan === "premium" && (
-            <button type="button" className="premium-badge-button" onClick={() => onNavigate("premium")} aria-label="My plan" title="My plan">
+            // Admin badge: opens the Admin page (users, payments, offers). Premium badge: opens My plan.
+            <button
+              type="button"
+              className="premium-badge-button"
+              onClick={() => onNavigate(user.role === "admin" ? "admin" : "premium")}
+              aria-label={user.role === "admin" ? "Admin page" : "My plan"}
+              title={user.role === "admin" ? "Admin page" : "My plan"}
+            >
               <PremiumBadge label={user.role === "admin" ? "Admin" : "Premium"} />
             </button>
           )}

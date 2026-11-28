@@ -20,19 +20,27 @@ import { newId } from "../security/tokens.js";
 import * as v from "../validate.js";
 import { publicUser } from "./auth.js";
 
+// Payments added by other tools or older versions may miss fields or use other words
+// ("succeeded"): they are shown in one shape so the pages never break on them.
+const PAID_WORDS = ["paid", "succeeded", "success", "completed"];
+export function paymentStatus(status) {
+  return PAID_WORDS.includes(status) ? "paid" : "declined";
+}
+
 export function publicPayment(p) {
+  const card = p.card && typeof p.card.last4 === "string" ? { brand: p.card.brand || "Card", last4: p.card.last4 } : null;
   return {
     _id: p._id,
-    plan: p.plan,
-    interval: p.interval,
-    amount: p.amount,
-    currency: p.currency,
-    status: p.status,
-    card: p.card,
+    plan: p.plan || "premium",
+    interval: ["monthly", "yearly"].includes(p.interval) ? p.interval : null,
+    amount: Number.isSafeInteger(p.amount) ? p.amount : 0,
+    currency: p.currency || "TND",
+    status: paymentStatus(p.status),
+    card,
     originalAmount: p.originalAmount ?? p.amount,
     offer: p.offer || null,
-    periodEnd: p.periodEnd,
-    createdAt: p.createdAt,
+    periodEnd: p.periodEnd || null,
+    createdAt: p.createdAt || null,
   };
 }
 

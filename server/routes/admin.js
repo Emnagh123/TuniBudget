@@ -10,6 +10,8 @@ import { sha256 } from "../security/tokens.js";
 import * as v from "../validate.js";
 import { planOf } from "../plans.js";
 import { publicPayment } from "./billing.js";
+
+const PAID = ["paid", "succeeded", "success", "completed"]; // same words as paymentStatus() in billing.js
 import { CODE_PATTERN } from "../offers.js";
 import { newId } from "../security/tokens.js";
 
@@ -71,9 +73,9 @@ export function adminRoutes() {
         {
           $group: {
             _id: "$userId",
-            paidCount: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, 1, 0] } },
-            declinedCount: { $sum: { $cond: [{ $eq: ["$status", "declined"] }, 1, 0] } },
-            paidTotal: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$amount", 0] } },
+            paidCount: { $sum: { $cond: [{ $in: ["$status", PAID] }, 1, 0] } },
+            declinedCount: { $sum: { $cond: [{ $in: ["$status", PAID] }, 0, 1] } },
+            paidTotal: { $sum: { $cond: [{ $in: ["$status", PAID] }, "$amount", 0] } },
             lastPaymentAt: { $max: "$createdAt" },
           },
         },
@@ -170,7 +172,7 @@ export function adminRoutes() {
     const ids = [...new Set(payments.map((p) => p.userId))];
     const users = await collections.users.find({ _id: { $in: ids } }, { projection: { fullName: 1, email: 1 } }).toArray();
     const byId = Object.fromEntries(users.map((u) => [u._id, u]));
-    const paidTotal = payments.filter((p) => p.status === "paid").reduce((sum, p) => sum + p.amount, 0);
+    const paidTotal = payments.filter((p) => PAID.includes(p.status) && Number.isSafeInteger(p.amount)).reduce((sum, p) => sum + p.amount, 0);
     res.json({
       paidTotal,
       items: payments.map((p) => ({ ...publicPayment(p), userId: p.userId, user: byId[p.userId] ? { fullName: byId[p.userId].fullName, email: byId[p.userId].email } : null })),

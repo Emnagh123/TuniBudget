@@ -152,7 +152,8 @@ export default function PremiumPage({ user, version, onChange, onUserChange, goT
             <li key={p._id} className="closed-list__row">
               <div>
                 <p style={{ fontWeight: 600 }}>
-                  Premium {p.interval} · {p.card.brand} •••• {p.card.last4}
+                  {p.interval ? "Premium " + p.interval : "Premium"}
+                  {p.card ? " · " + p.card.brand + " •••• " + p.card.last4 : ""}
                 </p>
                 <p className="muted small">
                   {formatDayYear(p.createdAt)}

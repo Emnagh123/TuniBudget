@@ -274,7 +274,7 @@ export function PaymentResult({ result, primaryLabel, onPrimary, secondaryLabel,
         <dl className="payment-result__receipt">
           <div>
             <dt>Plan</dt>
-            <dd>{LABEL[p.interval]}</dd>
+            <dd>{LABEL[p.interval] || "Premium"}</dd>
           </div>
           {p.offer && (
             <div>
@@ -288,12 +288,14 @@ export function PaymentResult({ result, primaryLabel, onPrimary, secondaryLabel,
             <dt>Amount paid</dt>
             <dd className="num">{formatTnd(p.amount)}</dd>
           </div>
-          <div>
-            <dt>Card</dt>
-            <dd>
-              {p.card.brand} •••• <span className="num">{p.card.last4}</span>
-            </dd>
-          </div>
+          {p.card && (
+            <div>
+              <dt>Card</dt>
+              <dd>
+                {p.card.brand} •••• <span className="num">{p.card.last4}</span>
+              </dd>
+            </div>
+          )}
           <div>
             <dt>Premium until</dt>
             <dd>{formatDayYear(p.periodEnd)}</dd>
